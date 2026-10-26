@@ -1,56 +1,59 @@
-# Welcome to your Expo app 👋
+# NIYA employee app
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+One React web app for the browser, Android and iOS. Vite builds the shared UI; Capacitor packages that build into the native apps. The application identifier remains `com.niyacovr.employee`.
 
-## Get started
+The first release supports email or phone OTP sign-in and read-only profile, family and current cover. It uses the existing employee APIs and works independently of enrolment invitation links. See [PRODUCT.md](PRODUCT.md) for scope and [the platform decision](docs/employee-app-platform.md) for the migration, security model and release checks.
 
-1. Install dependencies
+## Run locally
 
-   ```bash
-   npm install
-   ```
+Use a Node version allowed by `package.json` (`^22.22.2 || >=24.15.0`), then:
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```sh
+npm ci
+npm run dev
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+Open `http://127.0.0.1:5173`. The development server proxies `/api` to the backend at `http://localhost:4000`. Use a development backend with disposable data. For temporary phone OTP testing, the backend supports `EMPLOYEE_APP_SMS_MODE=console`; production SMS requires the approved NIYA provider configuration.
 
-### Other setup steps
+`VITE_API_BASE_URL` is a public API origin, never a credential. Leave it unset for browser development through the `/api` proxy. Deployed web and native builds need the intended HTTPS API origin, such as `https://api.example.com`, without an `/api` suffix. Create `.env.local` from `.env.example` and set the value before building. Vite embeds it at build time.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Android and iOS
 
-## Learn more
+Install Android Studio with SDK 36 and JDK 21 for Android, or Xcode 26+ for iOS. The native targets support Android API 24+ and iOS 15+.
 
-To learn more about developing your project with Expo, look at the following resources:
+```sh
+npm run cap:sync
+npm run android
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+For iOS, run `npm run ios` on macOS with the Xcode toolchain. Configure development signing in Xcode for the selected team. Native projects belong in version control; generated web bundles and copied native web assets are ignored.
 
-## Join the community
+Use `npm run android:dev` or `npm run ios:dev` for a native development build. Configure `VITE_API_BASE_URL` to a reachable HTTPS development API first: native builds enforce HTTPS in development as well. `localhost` inside a phone points to that phone. A local browser can use the HTTP proxy; native testing needs a reachable HTTPS development server or tunnel.
 
-Join our community of developers creating universal apps.
+## Verify
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```sh
+npm run typecheck
+npm run lint
+npm test
+npm run build
+npm run test:e2e
+```
+
+The browser suite uses mocked employee API responses and sends no OTP or email. Native SDK builds and device checks remain separate release gates; passing a web build does not verify them. Consult the scripts in `package.json` for the current commands.
+
+Results from the migration checks are recorded in the [verification record](docs/employee-app-platform.md#verification-record-20-october-2026).
+
+## App icons
+
+`assets/logo.png` is the existing NIYA logo used for the Android/iOS icons and splash assets. Regenerate them with the same pinned asset tool:
+
+```sh
+npm exec --yes --package=@capacitor/assets@3.0.5 -- capacitor-assets generate --assetPath assets --ios --android --iconBackgroundColor '#F8FAF9' --iconBackgroundColorDark '#F8FAF9' --splashBackgroundColor '#F8FAF9' --splashBackgroundColorDark '#F8FAF9'
+```
+
+## Deploy
+
+Host `dist/` as static HTTPS content for the web. Hash routes keep the entry point usable without an application-server route rewrite. Allow the deployed web origin and the native origins in backend CORS; see the [deployment checklist](docs/employee-app-platform.md#deployment-and-release).
+
+Android and iOS ship bundled web assets. Deploying the website does not update an installed mobile app. Rebuild, sync, sign and distribute a native release when its bundled UI or plugins change.
