@@ -22,6 +22,7 @@ export type Overview = {
     dateOfJoining: number | null;
     corporateName: string;
   };
+  claims?: { enabled: boolean; mode: 'fake' | 'disabled'; intimation: boolean; reimbursement: boolean; documentHandlingEnabled: boolean };
   family: Member[];
   covers: {
     id: string;
@@ -40,7 +41,8 @@ export class ApiError extends Error {
 }
 
 export async function api<T>(path: string, options: {
-  method?: 'GET' | 'POST'; body?: object; token?: string;
+  method?: 'GET' | 'POST' | 'PATCH'; body?: object; token?: string; idempotencyKey?: string;
+  query?: Record<string, string | number | undefined>;
 } = {}): Promise<T> {
   const base = getApiBaseUrl();
   if (!path.startsWith('/api/') || path.includes('?') || path.includes('#')) {
@@ -49,13 +51,19 @@ export async function api<T>(path: string, options: {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15_000);
   try {
-    const response = await fetch(`${base}${path}`, {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(options.query ?? {})) {
+      if (value !== undefined) query.set(key, String(value));
+    }
+    const qs = query.toString();
+    const response = await fetch(`${base}${path}${qs ? `?${qs}` : ''}`, {
       method: options.method ?? 'GET',
       credentials: 'omit',
       cache: 'no-store',
       signal: controller.signal,
       headers: {
         Accept: 'application/json',
+        ...(options.idempotencyKey ? { 'Idempotency-Key': options.idempotencyKey } : {}),
         ...(options.body ? { 'Content-Type': 'application/json' } : {}),
         ...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
       },

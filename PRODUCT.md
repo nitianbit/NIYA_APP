@@ -22,7 +22,9 @@ Employee responses and screens keep premiums and CD ledger data private. Show un
 
 Company identity, policies, family, eligibility, terms and status come from the API. The current app composes Home, Cover and Profile from that response, with Family as a detail screen. A customer without a top-up sees only its actual cover.
 
-Claims, claim intimation, hospital search, e-cards, card status, benefit and FAQ detail, OPD and wellness are future modules. Their design concepts do not enable them in this release. When a module is implemented, a versioned backend capability manifest can select its visibility and supported actions. The backend must enforce each action even when the UI hides it. Arbitrary layouts or executable code are not part of that proposed manifest.
+The approved claims foundation supports documentless admission-intimation drafts, edits, declaration, test submission and history through a network-free fake provider. The Claims entry appears only when the backend enables that capability; production remains disabled. Test receipts are not insurer approval, cashless authorisation or payment.
+
+Live claims filing, reimbursement, documents, provider status/payment sync, hospital search, e-cards, card status, benefit and FAQ detail, OPD and wellness remain future modules. When a module is implemented, a versioned backend capability manifest can select its visibility and supported actions. The backend must enforce each action even when the UI hides it. Arbitrary layouts or executable code are not part of that proposed manifest.
 
 ## Session behaviour
 

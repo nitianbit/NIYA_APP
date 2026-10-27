@@ -208,3 +208,28 @@ svg { flex-shrink: 0; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; }
 }
+
+/* Claims use the existing app forms, colours and plain list hierarchy. */
+.claim-toolbar, .claim-title { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 20px 0; }
+.claim-list, .claim-history { list-style: none; padding: 0; margin: 0; }
+.claim-list li + li, .claim-history li + li { border-top: 1px solid var(--line); }
+.claim-list button { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; text-align: left; padding: 20px 0; background: none; border: 0; color: var(--ink); }
+.claim-list strong, .claim-list small, .claim-history span { display: block; }
+.claim-list small, .claim-history span { color: var(--muted); font-size: 13px; margin-top: 6px; }
+.claim-list button > span:last-child, .claim-title > span { color: var(--blue); font-size: 13px; font-weight: 650; }
+.claim-form, .claim-detail { margin-top: 24px; }
+.claim-form > p { margin-top: 8px; }
+.claim-form fieldset { border: 0; padding: 0; margin: 24px 0; display: grid; gap: 18px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.claim-form label { display: grid; align-content: start; gap: 8px; font-size: 14px; font-weight: 600; }
+.claim-form input, .claim-form select, .claim-form textarea { width: 100%; min-width: 0; min-height: 48px; background: #fff; color: var(--ink); border: 1px solid #becbd6; border-radius: 10px; padding: 10px 12px; font: inherit; font-weight: 400; }
+.claim-form textarea { resize: vertical; }
+.claim-form :is(select, textarea):focus-visible { outline: 3px solid #1969bb; outline-offset: 4px; }
+.claim-wide { grid-column: 1 / -1; }
+.claim-facts { display: grid; gap: 18px; padding: 24px 0; }
+.claim-facts dt { font-size: 13px; color: var(--muted); }
+.claim-facts dd { margin: 4px 0 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.claim-actions { display: grid; justify-items: start; gap: 20px; }
+.claim-declaration { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; max-width: 65ch; }
+.claim-declaration input { flex-shrink: 0; width: 22px; height: 22px; accent-color: var(--blue); }
+.claim-history li { padding: 15px 0; font-size: 14px; }
+@media (max-width: 540px) { .claim-form fieldset { grid-template-columns: minmax(0, 1fr); } .claim-list button { align-items: flex-start; } }

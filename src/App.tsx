@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Home, LoaderCircle, RefreshCw, ShieldCheck, UserRound } from 'lucide-react';
 import { Brand } from './components/ui';
 import { SessionProvider, useSession } from './lib/session';
+import ClaimsScreen from './screens/ClaimsScreen';
 import CoverScreen from './screens/CoverScreen';
 import FamilyScreen from './screens/FamilyScreen';
 import HomeScreen from './screens/HomeScreen';
@@ -9,8 +10,8 @@ import LoginScreen from './screens/LoginScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import './styles.css';
 
-type Route = 'home' | 'cover' | 'family' | 'profile';
-const routes: Route[] = ['home', 'cover', 'family', 'profile'];
+type Route = 'home' | 'cover' | 'family' | 'profile' | 'claims';
+const routes: Route[] = ['home', 'cover', 'family', 'profile', 'claims'];
 function readRoute(): Route {
   const route = window.location.hash.replace(/^#\/?/, '');
   return routes.includes(route as Route) ? route as Route : 'home';
@@ -52,7 +53,7 @@ function EmployeeApp() {
     <main className="app-main" id="main-content" tabIndex={-1}>
       {message ? <div className="load-error" role="alert"><p>{message}</p><button className="text-button" disabled={refreshing} onClick={() => { void reload(); }}>{refreshing ? 'Retrying…' : 'Try again'}</button></div> : null}
       {!overview ? <section className="empty-state"><h1 id="page-title">Unable to load your details</h1><p>Check your connection and try again.</p><button className="button button-primary" disabled={refreshing} onClick={() => { void reload(); }}>{refreshing ? 'Loading…' : 'Try again'}</button><button className="text-button" onClick={() => { void signOut().catch((cause: Error) => setActionError(cause.message)); }}>Sign out</button></section>
-        : route === 'cover' ? <CoverScreen /> : route === 'family' ? <FamilyScreen /> : route === 'profile' ? <ProfileScreen /> : <HomeScreen />}
+        : route === 'claims' ? <ClaimsScreen /> : route === 'cover' ? <CoverScreen /> : route === 'family' ? <FamilyScreen /> : route === 'profile' ? <ProfileScreen /> : <HomeScreen />}
     </main>
     {overview ? <nav className="bottom-nav" aria-label="Main navigation"><div>
       <a href="#/home" aria-current={route === 'home' ? 'page' : undefined}><Home size={22} aria-hidden="true" /><span>Home</span></a>

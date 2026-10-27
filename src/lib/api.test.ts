@@ -43,7 +43,7 @@ describe('API configuration', () => {
 
 describe('API requests', () => {
   it('uses the exact API path, omits cookies and caches, and sends the token only in a header', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ ok: true })));
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response(JSON.stringify({ ok: true }))));
     vi.stubGlobal('fetch', fetchMock);
     await api('/api/employee/app/overview', { token: 'private-token' });
     expect(fetchMock).toHaveBeenCalledWith('/api/employee/app/overview', expect.objectContaining({
@@ -51,6 +51,38 @@ describe('API requests', () => {
       headers: { Accept: 'application/json', Authorization: 'Bearer private-token' },
     }));
     expect(fetchMock.mock.calls[0][0]).not.toContain('private-token');
+  });
+  it('encodes scoped date queries and supports versioned PATCH without moving credentials into URLs', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response(JSON.stringify({ ok: true }))));
+    vi.stubGlobal('fetch', fetchMock);
+    await api('/api/employee/app/claims/options', { token: 'private-token', query: { on: 20261026, search: 'A & B', omitted: undefined } });
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/employee/app/claims/options?on=20261026&search=A+%26+B');
+    await api('/api/employee/app/claims/example', { method: 'PATCH', token: 'private-token', body: { expectedVersion: 2 } });
+    expect(fetchMock.mock.calls[1][1]).toMatchObject({ method: 'PATCH', body: '{"expectedVersion":2}' });
+    await expect(api('/api/employee/app/claims?token=bad')).rejects.toThrow('Invalid NIYA API path');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+  it('keeps date, pagination and encoded filters without URLSearchParams.size', async () => {
+    class OlderSearchParams extends URLSearchParams {}
+    Object.defineProperty(OlderSearchParams.prototype, 'size', { get: () => undefined });
+    vi.stubGlobal('URLSearchParams', OlderSearchParams);
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response(JSON.stringify({ ok: true }))));
+    vi.stubGlobal('fetch', fetchMock);
+    await api('/api/employee/app/claims/options', { query: { on: 20261020, search: 'A & B', omitted: undefined } });
+    await api('/api/employee/app/claims', { query: { page: 2 } });
+    await api('/api/employee/app/claims', { query: {} });
+    expect(fetchMock.mock.calls.map(call => call[0])).toEqual([
+      '/api/employee/app/claims/options?on=20261020&search=A+%26+B',
+      '/api/employee/app/claims?page=2', '/api/employee/app/claims',
+    ]);
+  });
+  it('sends a stable draft creation key in a header', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response(JSON.stringify({ ok: true }))));
+    vi.stubGlobal('fetch', fetchMock);
+    await api('/api/employee/app/claims', { method: 'POST', token: 'private-token',
+      idempotencyKey: 'stable-creation-key', body: { hospitalName: 'Synthetic Hospital' } });
+    expect(fetchMock.mock.calls[0][1].headers['Idempotency-Key']).toBe('stable-creation-key');
+    expect(fetchMock.mock.calls[0][0]).not.toContain('stable-creation-key');
   });
   it('preserves the server error message and HTTP status', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ error: 'Expired sign-in' }), { status: 401 })));

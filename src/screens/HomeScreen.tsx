@@ -23,6 +23,7 @@ export default function HomeScreen() {
       <p className="cover-period">{dateLabel(primary.periodStart)} – {dateLabel(primary.periodEnd)}</p>
       <div className="home-cover-bottom"><span>{primary.members.length} covered {primary.members.length === 1 ? 'member' : 'members'}</span><RouteLink href="#/cover">View cover</RouteLink></div>
     </section> : <Empty title="No current cover to show">Your P&amp;C team can help if you expected a policy here.</Empty>}
+    {overview.claims?.enabled ? <section className="plain-section"><h2>Claims</h2><p className="muted">Tell us about a hospital admission and see your family’s intimation history.</p><RouteLink href="#/claims">View claims</RouteLink></section> : null}
     <div className="home-shortcuts">
       <a className="shortcut shortcut-sky" href="#/family"><UsersRound aria-hidden="true" size={25} /><h2>Your family</h2><p>{family.length} {family.length === 1 ? 'dependent' : 'dependents'} on your roster</p><span>View family <span aria-hidden="true">→</span></span></a>
       <a className="shortcut shortcut-peach" href="#/profile"><UserRound aria-hidden="true" size={25} /><h2>Your profile</h2><p>Your contact and employee details</p><span>View profile <span aria-hidden="true">→</span></span></a>

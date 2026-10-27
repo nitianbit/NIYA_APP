@@ -17,7 +17,8 @@
     "android": "npm run cap:sync && cap run android --no-sync",
     "ios": "npm run cap:sync && cap run ios --no-sync",
     "android:dev": "npm run cap:sync:dev && cap run android --no-sync",
-    "ios:dev": "npm run cap:sync:dev && cap run ios --no-sync"
+    "ios:dev": "npm run cap:sync:dev && cap run ios --no-sync",
+    "test:claims": "playwright test --config playwright.claims.config.ts"
   },
   "dependencies": {
     "@aparajita/capacitor-secure-storage": "8.0.1",
