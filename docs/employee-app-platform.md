@@ -57,7 +57,7 @@ Commit the Capacitor configuration and generated Android/iOS source projects. Ig
 
 The baseline toolchains are a Node version satisfying `package.json` (`^22.22.2 || >=24.15.0`), Android SDK 36 with JDK 21, and Xcode 26+. Targets start at Android API 24 and iOS 15. Plugin and Capacitor upgrades can change these requirements, so check the linked primary documentation when upgrading.
 
-Camera, location, push notifications, file picking and e-card sharing are future implementation work. Each needs a plugin choice, a browser behaviour, permission handling and a real-device check before becoming an available product action.
+Camera, location, push notifications, employee file picking and explicit e-card sharing are future implementation work. Each needs a plugin choice, a browser behaviour, permission handling and a real-device check before becoming an available product action.
 
 ## Deployment and release
 
@@ -116,3 +116,14 @@ Keep this local recovery material until the migration has been reviewed and comm
 - [Capacitor iOS environment](https://capacitorjs.com/docs/ios)
 - [React Native Web multi-platform guidance](https://necolas.github.io/react-native-web/docs/multi-platform/)
 - [Capacitor secure-storage plugin](https://github.com/aparajita/capacitor-secure-storage)
+
+## Manual e-card file integration — 27 October 2026
+
+- Authenticated APIs: `GET /api/employee/app/ecards` and `GET /api/employee/app/ecards/:id/file`. Both recheck the active roster identity and corporate. No enrolment is required.
+- Browser: a bearer-authenticated fetch downloads a PDF/PNG/JPEG as a temporary Blob URL; no persistent medical cache or service worker.
+- Native: pinned official plugins `@capacitor/filesystem` 8.1.5 and `@capacitor/file-viewer` 2.0.4 open the downloaded file from the app's Cache directory. The app never sends its token in a URL or asks the viewer to fetch an authenticated URL.
+- Cache cleanup is serialized and sign-out invalidates pending file operations. Startup cleans the dedicated `niya-ecards` directory before restoring sign-in. Storage/viewer failures remain visible. A previously downloaded or externally saved copy cannot be remotely revoked.
+- iOS includes `PrivacyInfo.xcprivacy` in app resources, declaring FileTimestamp reason C617.1 for Filesystem. Android backup stays disabled. No broad storage permission is requested for the app-private cache.
+- External HTTPS card links use an ordinary external navigation; Capacitor's existing navigation delegates open them through the OS. They are not embedded as remote images or fetched by the backend.
+
+Plugin setup references: [Filesystem](https://capacitorjs.com/docs/apis/filesystem), [File Viewer](https://capacitorjs.com/docs/apis/file-viewer). Run Capacitor sync before each native build. Native document opening, viewer dismissal, link navigation and cache cleanup need device verification before release; browser downloads and native compilation are separate evidence.

@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { clearEcardCache } from './ecards';
 import { api, type Overview } from './api';
 import { readToken, removeToken, saveToken } from './storage';
 
@@ -27,6 +28,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const clearMemory = useCallback(() => {
     generation.current += 1;
+    const cleared = generation.current;
+    void clearEcardCache().catch(() => { if (generation.current === cleared) setError(previous => `${previous ? previous + ' ' : ''}Could not clear the temporary e-card cache. Restart the app and try again.`); });
     currentToken.current = null;
     refreshRequest.current = null;
     setToken(null);
@@ -66,6 +69,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     const version = ++generation.current;
     void (async () => {
       try {
+        await clearEcardCache();
         const saved = await readToken();
         if (generation.current !== version) return;
         if (saved) {

@@ -24,6 +24,8 @@
     "@aparajita/capacitor-secure-storage": "8.0.1",
     "@capacitor/android": "8.5.3",
     "@capacitor/core": "8.5.3",
+    "@capacitor/file-viewer": "2.0.4",
+    "@capacitor/filesystem": "8.1.5",
     "@capacitor/ios": "8.5.3",
     "lucide-react": "1.59.0",
     "react": "19.3.1",

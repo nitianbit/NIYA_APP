@@ -24,8 +24,14 @@ Company identity, policies, family, eligibility, terms and status come from the 
 
 The approved claims foundation supports documentless admission-intimation drafts, edits, declaration, test submission and history through a network-free fake provider. The Claims entry appears only when the backend enables that capability; production remains disabled. Test receipts are not insurer approval, cashless authorisation or payment.
 
-Live claims filing, reimbursement, documents, provider status/payment sync, hospital search, e-cards, card status, benefit and FAQ detail, OPD and wellness remain future modules. When a module is implemented, a versioned backend capability manifest can select its visibility and supported actions. The backend must enforce each action even when the UI hides it. Arbitrary layouts or executable code are not part of that proposed manifest.
+Live claims filing, reimbursement, documents, provider status/payment sync, hospital search, TPA e-card sync, card status, benefit and FAQ detail, OPD and wellness remain future modules. When a module is implemented, a versioned backend capability manifest can select its visibility and supported actions. The backend must enforce each action even when the UI hides it. Arbitrary layouts or executable code are not part of that proposed manifest.
 
 ## Session behaviour
 
 Native apps keep the access token in platform secure storage. The browser keeps it in memory, so a page refresh requires sign-in again. Signing out removes the local token. A 401 response returns the user to sign-in; a network failure preserves a recoverable error state instead of displaying fabricated data.
+
+## Manual e-cards
+
+An active roster account can access E-cards without an enrolment or a policy selected through NIYA. Broker Admin, Broker Operator and Claims Operator can add/replace/remove links or private PDF/PNG/JPEG files and import links using Excel/CSV in the dashboard. HR and Finance have no management access. Cards are scoped to a company and one employee household; multiple named cards are supported. An e-card is identification, not proof of current cover. Family/cover eligibility is unchanged.
+
+Web users download uploaded files. Native users open an authenticated download through the platform file viewer; temporary files use app-private cache and are cleared on startup, sign-out/session invalidation and before opening another file. External HTTPS links open outside the app. There is no TPA card provisioning/status integration or offline wallet in this slice.

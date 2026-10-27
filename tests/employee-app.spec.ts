@@ -81,7 +81,8 @@ test('employee signs in, sees their family and separate covers, and signs out', 
   await signIn(page);
   await expect(page.getByText('Example Industries', { exact: true })).toBeVisible();
   await expect(page.getByText('2 covered members', { exact: true })).toBeVisible();
-  await expect(page.locator('a, button').filter({ hasText: /apply for claim|find hospitals|e-card|services/i })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'View e-cards', exact: true })).toHaveAttribute('href', '#/ecards');
+  await expect(page.locator('a, button').filter({ hasText: /apply for claim|find hospitals|services/i })).toHaveCount(0);
 
   await page.getByRole('link', { name: /Your family.*View family/ }).click();
   const fatherCard = page.locator('section').filter({ has: page.getByRole('heading', { name: father.fullName, exact: true }) });

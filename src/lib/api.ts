@@ -42,7 +42,7 @@ export class ApiError extends Error {
 
 export async function api<T>(path: string, options: {
   method?: 'GET' | 'POST' | 'PATCH'; body?: object; token?: string; idempotencyKey?: string;
-  query?: Record<string, string | number | undefined>;
+  response?: 'blob'; query?: Record<string, string | number | undefined>;
 } = {}): Promise<T> {
   const base = getApiBaseUrl();
   if (!path.startsWith('/api/') || path.includes('?') || path.includes('#')) {
@@ -60,6 +60,7 @@ export async function api<T>(path: string, options: {
       method: options.method ?? 'GET',
       credentials: 'omit',
       cache: 'no-store',
+      redirect: 'error',
       signal: controller.signal,
       headers: {
         Accept: 'application/json',
@@ -69,6 +70,7 @@ export async function api<T>(path: string, options: {
       },
       ...(options.body ? { body: JSON.stringify(options.body) } : {}),
     });
+    if (response.ok && options.response === 'blob') return await response.blob() as T;
     const data: unknown = await response.json().catch(() => null);
     if (!response.ok) {
       const message = typeof data === 'object' && data !== null

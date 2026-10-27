@@ -14,6 +14,8 @@ vi.mock('@capacitor/core', () => ({ Capacitor: { isNativePlatform: mocks.native 
 vi.mock('@aparajita/capacitor-secure-storage', () => ({
   SecureStorage: mocks.storage, KeychainAccess: { whenUnlockedThisDeviceOnly: 1 },
 }));
+vi.mock('@capacitor/filesystem', () => ({ Directory: { Cache: 'CACHE' }, Filesystem: { readdir: vi.fn().mockResolvedValue({ files: [] }), rmdir: vi.fn() } }));
+vi.mock('@capacitor/file-viewer', () => ({ FileViewer: { openDocumentFromLocalPath: vi.fn() } }));
 vi.mock('./api', () => ({ api: vi.fn() }));
 
 const mockedApi = vi.mocked(api);
