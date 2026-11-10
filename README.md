@@ -1,4 +1,4 @@
-# NIYA employee app
+# NIYA_APP
 
 One React web app for the browser, Android and iOS. Vite builds the shared UI; Capacitor packages that build into the native apps. The application identifier remains `com.niyacovr.employee`.
 
