@@ -127,3 +127,14 @@ Keep this local recovery material until the migration has been reviewed and comm
 - External HTTPS card links use an ordinary external navigation; Capacitor's existing navigation delegates open them through the OS. They are not embedded as remote images or fetched by the backend.
 
 Plugin setup references: [Filesystem](https://capacitorjs.com/docs/apis/filesystem), [File Viewer](https://capacitorjs.com/docs/apis/file-viewer). Run Capacitor sync before each native build. Native document opening, viewer dismissal, link navigation and cache cleanup need device verification before release; browser downloads and native compilation are separate evidence.
+
+
+## Reimbursement demo — 15 November 2026
+
+The shared web UI adds reimbursement forms, bounded multipart uploads and authenticated original downloads under `/api/employee/app/claims`. Browser input file selection uses the WebView's file picker; no camera or broad-storage permission was added. Claim PDFs/images reuse the existing private-cache viewer and sign-out/startup cleanup; temporary native files still live in the dedicated cache directory. The blank claim form uses a separate 10 MB download allowance; claim uploads and original viewing accept up to 10 MB, with a 20 MB total per claim. Native picker, viewer and cache behaviour require Android/iOS device testing.
+
+The backend capability distinguishes `demo` from the earlier documentless `fake` mode. Both are disabled in production; the app displays the backend-provided capability. No provider credentials or account mappings are stored in the app. See the backend's `docs/claims-demo.md` for the runnable synthetic setup and live-integration boundary.
+
+The configured nonproduction `mediassist_uat` mode now shares these same screens with real provider dispatch. It adds no provider credentials to the app: policy/member mapping stays Broker Admin-controlled on the backend, and document URLs are issued per immutable dispatch attempt. Real credentials/UAT and Android/iOS device verification are pending. See backend docs/mediassist-integration.md for supported operations and remaining release gates.
+
+Claim multipart uploads use a 120-second finite request deadline; normal JSON and download requests retain the existing 15-second deadline. The backend claim-upload deadline matches 120 seconds. The fixed file/count/total limits remain unchanged. Slow-network browser verification and native-device verification are separate evidence.

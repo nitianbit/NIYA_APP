@@ -22,7 +22,7 @@ export type Overview = {
     dateOfJoining: number | null;
     corporateName: string;
   };
-  claims?: { enabled: boolean; mode: 'fake' | 'disabled'; intimation: boolean; reimbursement: boolean; documentHandlingEnabled: boolean };
+  claims?: { enabled: boolean; mode: 'fake' | 'demo' | 'mediassist_uat' | 'disabled'; intimation: boolean; reimbursement: boolean; documentHandlingEnabled: boolean };
   family: Member[];
   covers: {
     id: string;
@@ -41,7 +41,7 @@ export class ApiError extends Error {
 }
 
 export async function api<T>(path: string, options: {
-  method?: 'GET' | 'POST' | 'PATCH'; body?: object; token?: string; idempotencyKey?: string;
+  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'; formData?: FormData; body?: object; token?: string; idempotencyKey?: string;
   response?: 'blob'; query?: Record<string, string | number | undefined>;
 } = {}): Promise<T> {
   const base = getApiBaseUrl();
@@ -49,7 +49,7 @@ export async function api<T>(path: string, options: {
     throw new Error('Invalid NIYA API path.');
   }
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15_000);
+  const timeout = setTimeout(() => controller.abort(), options.formData ? 120_000 : 15_000);
   try {
     const query = new URLSearchParams();
     for (const [key, value] of Object.entries(options.query ?? {})) {
@@ -65,10 +65,10 @@ export async function api<T>(path: string, options: {
       headers: {
         Accept: 'application/json',
         ...(options.idempotencyKey ? { 'Idempotency-Key': options.idempotencyKey } : {}),
-        ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+        ...(options.body && !options.formData ? { 'Content-Type': 'application/json' } : {}),
         ...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
       },
-      ...(options.body ? { body: JSON.stringify(options.body) } : {}),
+      ...(options.formData ? { body: options.formData } : options.body ? { body: JSON.stringify(options.body) } : {}),
     });
     if (response.ok && options.response === 'blob') return await response.blob() as T;
     const data: unknown = await response.json().catch(() => null);

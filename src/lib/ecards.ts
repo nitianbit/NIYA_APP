@@ -23,9 +23,9 @@ export function validEcardLink(value: string | null): boolean {
   try { const url = new URL(value ?? ''); return url.protocol === 'https:' && !url.username && !url.password; }
   catch { return false; }
 }
-export async function openEcardFile(blob: Blob, version: number, isCurrent: () => boolean) {
+export async function openEcardFile(blob: Blob, version: number, isCurrent: () => boolean, options: { maxBytes?: number; fileName?: string } = {}) {
   const extension = ({ 'application/pdf': '.pdf', 'image/png': '.png', 'image/jpeg': '.jpg' } as Record<string, string>)[blob.type];
-  if (!extension || !blob.size || blob.size > 5 * 1024 * 1024) throw new Error('This e-card is not a supported PDF or image. Contact support.');
+  if (!extension || !blob.size || blob.size > (options.maxBytes ?? 5 * 1024 * 1024)) throw new Error('This file is not a supported PDF or image. Contact support.');
   const current = () => version === generation && isCurrent();
   if (!current()) return;
   if (Capacitor.isNativePlatform()) {
@@ -45,7 +45,7 @@ export async function openEcardFile(blob: Blob, version: number, isCurrent: () =
     if (uri && current()) await FileViewer.openDocumentFromLocalPath({ path: uri });
   } else {
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a'); link.href = url; link.download = `niya-ecard${extension}`;
+    const link = document.createElement('a'); link.href = url; link.download = options.fileName ?? `niya-ecard${extension}`;
     document.body.append(link); link.click(); link.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }

@@ -106,3 +106,30 @@ it('validates calendar dates without rolling invalid days into another month', (
   }
   expect(rupees(123456)).toBe('₹1,23,456');
 });
+
+
+describe('bounded slow claim uploads', () => {
+  it('lets an upload continue past 15 seconds and complete on a slower connection', async () => {
+    vi.useFakeTimers(); let aborted = false;
+    let complete!: (response: Response) => void;
+    vi.stubGlobal('fetch', vi.fn((_url: string, options: RequestInit) => new Promise<Response>((resolve, reject) => {
+      complete = resolve;
+      options.signal?.addEventListener('abort', () => { aborted = true; reject(new DOMException('Aborted', 'AbortError')); });
+    })));
+    const formData = new FormData(); formData.append('file', new Blob(['%PDF-1.7']), 'claim-form.pdf');
+    const result = api('/api/employee/app/claims/example/documents', { method: 'POST', formData }).then(value => ({ value }), error => ({ error }));
+    await vi.advanceTimersByTimeAsync(16_000);
+    expect(aborted).toBe(false);
+    await vi.advanceTimersByTimeAsync(74_000);
+    complete(new Response(JSON.stringify({ uploaded: true })));
+    expect(await result).toEqual({ value: { uploaded: true } });
+  });
+  it('still aborts an upload at the longer finite deadline', async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('fetch', vi.fn((_url: string, options: RequestInit) => new Promise((_resolve, reject) => {
+      options.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+    })));
+    const failure = expect(api('/api/employee/app/claims/example/documents', { method: 'POST', formData: new FormData() })).rejects.toThrow('too long');
+    await vi.advanceTimersByTimeAsync(120_000); await failure;
+  });
+});
