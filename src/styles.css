@@ -115,6 +115,7 @@ svg { flex-shrink: 0; }
 .policy-members > p { margin-top: 12px; font-size: 14px; }
 .page-note { font-size: 13px; margin: 22px 3px 0; }
 .family-list { display: grid; gap: 15px; }
+.family-list + .empty-state { margin-top: 15px; }
 .member-card { background: #fff; border: 1px solid var(--line); padding: 20px; border-radius: 17px; }
 .member-heading { display: flex; align-items: center; gap: 13px; }
 .member-heading > div { min-width: 0; }
@@ -212,10 +213,19 @@ svg { flex-shrink: 0; }
 /* Claims use the existing app forms, colours and plain list hierarchy. */
 .claim-toolbar, .claim-title { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 20px 0; }
 .claim-list, .claim-history { list-style: none; padding: 0; margin: 0; }
-.claim-list li + li, .claim-history li + li { border-top: 1px solid var(--line); }
-.claim-list button { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; text-align: left; padding: 20px 0; background: none; border: 0; color: var(--ink); }
+.claim-list { display: grid; gap: 12px; }
+.claim-toolbar-actions { display: flex; align-items: center; gap: 10px; }
+.claim-pager { justify-content: center; gap: 8px; margin-top: 18px; }
+.claim-pager .text-button { min-height: 38px; padding: 7px 15px; border: 1px solid var(--line); border-radius: 999px; background: #fff; }
+.claim-pager .text-button:disabled { color: var(--muted); opacity: .6; }
+.claim-pager > span { font-size: 13px; color: var(--muted); padding: 0 6px; }
+.claim-history li + li { border-top: 1px solid var(--line); }
+.claim-list button { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 16px; width: 100%; text-align: left; padding: 18px 20px; background: #fff; border: 1px solid var(--line); border-radius: 17px; color: var(--ink); }
+.claim-list button:hover:not(:disabled) { border-color: var(--blue); }
 .claim-list strong, .claim-list small, .claim-history span { display: block; }
 .claim-list small, .claim-history span { color: var(--muted); font-size: 13px; margin-top: 6px; }
+.claim-list button > span:first-child { min-width: 0; flex: 1 1 60%; }
+.claim-list button > span:last-child { flex: 0 0 auto; padding: 5px 11px; border-radius: 999px; background: var(--sky); white-space: nowrap; }
 .claim-list button > span:last-child, .claim-title > span { color: var(--blue); font-size: 13px; font-weight: 650; }
 .claim-form, .claim-detail { margin-top: 24px; }
 .claim-form > p { margin-top: 8px; }
